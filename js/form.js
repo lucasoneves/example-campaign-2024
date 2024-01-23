@@ -304,6 +304,10 @@ function submitPaymentForm() {
     var requiredFields = {};
     requiredFields["first_name"] = firstName.value;
     requiredFields["last_name"] = lastName.value;
+    if (window.shippinnAddressAlternative) {
+        requiredFields["first_name_ship"] = firstNameShip.value;
+        requiredFields["last_name_ship"] = lastNameShip.value;
+    }
     requiredFields["month"] = expMonth.value;
     requiredFields["year"] = expYear.value;
 

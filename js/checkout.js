@@ -8,6 +8,7 @@ const formEl = document.querySelector('.form');
 const firstName = document.querySelector("#id_first_name");
 const firstNameShip = document.querySelector("#id_first_name_ship");
 const lastName = document.querySelector("#id_last_name");
+const lastNameShip = document.querySelector("#id_last_name_ship");
 const email = document.querySelector("#id_email");
 const expMonth = document.getElementById("id_expiry_month");
 const expYear = document.getElementById("id_expiry_year");
@@ -138,14 +139,23 @@ const createOrder = async () => {
             "card_token": data.card_token,
         },
         "shipping_address": {
-            "first_name": window.shippinnAddressAlternative ? data.first_name_ship : data.first_name,
-            "last_name": window.shippinnAddressAlternative ? data.last_name_ship : data.last_name,
-            "line1": window.shippinnAddressAlternative ? data.shipping_address_line1_ship : data.shipping_address_line1,
-            "line4": window.shippinnAddressAlternative ? data.shipping_address_line4_ship : data.shipping_address_line4,
-            "state": window.shippinnAddressAlternative ? data.shipping_state_ship : data.shipping_state,
-            "postcode": window.shippinnAddressAlternative ? data.shipping_postcode_ship : data.shipping_postcode,
+            "first_name": data.first_name,
+            "last_name": data.last_name,
+            "line1": data.shipping_address_line1,
+            "line4": data.shipping_address_line4,
+            "state": data.shipping_state,
+            "postcode": data.shipping_postcode,
             "phone_number": data.phone_number,
             "country": data.shipping_country
+        },
+        "billing_addres": {
+            "first_name": window.shippinnAddressAlternative && data.first_name_ship,
+            "last_name": window.shippinnAddressAlternative && data.last_name_ship,
+            "line1": window.shippinnAddressAlternative && data.shipping_address_line1_ship,
+            "line4": window.shippinnAddressAlternative && data.shipping_address_line4_ship,
+            "state": window.shippinnAddressAlternative && data.shipping_state_ship,
+            "postcode": window.shippinnAddressAlternative && data.shipping_postcode_ship,
+            "country": window.shippinnAddressAlternative && data.shipping_country_ship
         },
         "shipping_method": data.shipping_method,
         "success_url": campaign.nextStep(nextURL)
