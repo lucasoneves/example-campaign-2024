@@ -156,10 +156,10 @@ validate
     })
 
 const shippingCheckbox = document.querySelector('#check-shipping-addres')
+window.shippinnAddressAlternative = false
 shippingCheckbox.addEventListener('change', (e) => {
     document.querySelector('#form-inf-ship').style.display = 'none'
     if (e.target.checked === false) {
-        console.log(e.target.checked)
         document.querySelector('#form-inf-ship').style.display = 'block'
         window.shippinnAddressAlternative = true
         validate.addField(
@@ -263,6 +263,7 @@ shippingCheckbox.addEventListener('change', (e) => {
         validate.removeField('#id_shipping_address_line4_ship');
         validate.removeField('#id_shipping_state_ship');
         validate.removeField('#id_shipping_postcode_ship');
+        window.shippinnAddressAlternative = false
     }
 
 })
