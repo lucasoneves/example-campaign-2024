@@ -6,7 +6,9 @@ let lineArr = [];
 // form
 const formEl = document.querySelector('.form');
 const firstName = document.querySelector("#id_first_name");
+const firstNameShip = document.querySelector("#id_first_name_ship");
 const lastName = document.querySelector("#id_last_name");
+const lastNameShip = document.querySelector("#id_last_name_ship");
 const email = document.querySelector("#id_email");
 const expMonth = document.getElementById("id_expiry_month");
 const expYear = document.getElementById("id_expiry_year");
@@ -120,6 +122,17 @@ const createOrder = async () => {
     btnCC.textContent = btnCC.dataset.loadingText;
     validErrBlock.innerHTML = ``
 
+    const billingAddress = {
+        "first_name": data.first_name_ship,
+        "last_name": data.last_name_ship,
+        "line1": data.shipping_address_line1_ship,
+        "line4": data.shipping_address_line4_ship,
+        "state": data.shipping_state_ship,
+        "postcode": data.shipping_postcode_ship,
+        "country": data.shipping_country
+
+    }
+
     const orderData = {
         "user": {
             "first_name": data.first_name,
@@ -131,7 +144,9 @@ const createOrder = async () => {
         "use_default_shipping_address": false,
 
         "use_default_billing_address": false,
-        "billing_same_as_shipping_address": data.billing_same_as_shipping_address,
+        "billing_same_as_shipping_address": window.shippinnAddressAlternative ? false : true,
+
+
         "payment_detail": {
             "payment_method": data.payment_method,
             "card_token": data.card_token,
@@ -151,7 +166,9 @@ const createOrder = async () => {
     }
 
 
-    console.log(orderData);
+    if (window.shippinnAddressAlternative) {
+        orderData['billing_address'] = billingAddress
+    }
 
     try {
         const response = await fetch(ordersURL, {
@@ -167,7 +184,7 @@ const createOrder = async () => {
             btnCC.disabled = false;
             btnCC.textContent = btnCC.dataset.text;
 
-            console.log ('Something went wrong', result);
+            console.log('Something went wrong', result);
             let error = result.non_field_errors;
             validErrBlock.innerHTML = `
                 <div class="alert alert-danger">
@@ -181,7 +198,7 @@ const createOrder = async () => {
             btnCC.disabled = false;
             btnCC.textContent = btnCC.dataset.text;
 
-            console.log ('ZIP is incorrect', result);
+            console.log('ZIP is incorrect', result);
             let error = result.postcode;
             validErrBlock.innerHTML = `
                 <div class="alert alert-danger">
@@ -189,13 +206,13 @@ const createOrder = async () => {
                 </div>
             `;
             return;
-        
+
         } else if (!response.ok && result.shipping_address) {
 
             btnCC.disabled = false;
             btnCC.textContent = btnCC.dataset.text;
 
-            console.log ('Phone number is not accepted', result);
+            console.log('Phone number is not accepted', result);
             let error = result.shipping_address.phone_number;
             validErrBlock.innerHTML = `
                 <div class="alert alert-danger">
@@ -203,13 +220,13 @@ const createOrder = async () => {
                 </div>
             `;
             return;
-        
+
         } else if (!response.ok) {
-            
+
             btnCC.disabled = false;
             btnCC.textContent = btnCC.dataset.text;
-            
-            console.log ('Something went wrong', result);
+
+            console.log('Something went wrong', result);
             let error = Object.values(result)[0];
             document.getElementById("payment-error-block").innerHTML = `
                 <div class="alert alert-danger">
@@ -299,7 +316,7 @@ const createProspect = () => {
     const email_reg = {
         first: /(?:[a-z0-9+!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/gi
     };
-    if (firstName.value != '' && lastName.value != '' && (email_reg.first.test(email.value))) {
+    if (firstName.value != '' && firstNameShip.value != '' && lastName.value != '' && (email_reg.first.test(email.value))) {
 
         sendProspect()
 
@@ -408,7 +425,7 @@ const calculateTotal = () => {
 // Inits & Event Listeners
 // 
 
-document.addEventListener("DOMContentLoaded", function(event) {
+document.addEventListener("DOMContentLoaded", function (event) {
 
     renderPackages();
 
@@ -422,9 +439,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     if ($offer) {
 
-        $offer.forEach(function(el, key) {
+        $offer.forEach(function (el, key) {
 
-            el.addEventListener('click', function() {
+            el.addEventListener('click', function () {
 
                 el.classList.toggle("selected");
 
@@ -452,7 +469,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     summaryShipPrice.textContent = "FREE";
                 }
 
-                $offer.forEach(function(ell, els) {
+                $offer.forEach(function (ell, els) {
                     if (key !== els) {
                         ell.classList.remove('selected');
                     }
@@ -499,22 +516,24 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 
 firstName.addEventListener('blur', createProspect);
+firstNameShip.addEventListener('blue', createProspect);
 lastName.addEventListener('blur', createProspect);
 email.addEventListener('blur', createProspect);
 
 btnPaypal.addEventListener('click', event => {
     validate.revalidateField('#id_first_name'),
         validate.revalidateField('#id_last_name'),
+        validate.revalidateField('#id_first_name_ship'),
         validate.revalidateField('#id_email')
-        .then(isValid => {
-            if (isValid) {
-                console.log('Paypal Button Clicked');
-                document.getElementById('payment_method').value = 'paypal';
-                createPayPalOrder();
-            } else {
-                document.querySelector('.is-invalid').focus();
-            }
-        });
+            .then(isValid => {
+                if (isValid) {
+                    console.log('Paypal Button Clicked');
+                    document.getElementById('payment_method').value = 'paypal';
+                    createPayPalOrder();
+                } else {
+                    document.querySelector('.is-invalid').focus();
+                }
+            });
 });
 
 btnCC.addEventListener('click', event => {
